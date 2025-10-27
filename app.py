@@ -1,28 +1,25 @@
-"""
-Simple Flask Web Dashboard to display crawled articles
-Run this on any machine that can connect to RDS
-"""
-
-from flask import Flask, render_template, request, jsonify
-import psycopg2
-from psycopg2.extras import RealDictCursor
+from flask import Flask, render_template, request, jsonify, Response
+import psycopg
+from psycopg.rows import dict_row
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
+import csv
+from io import StringIO
 
 app = Flask(__name__)
 
-# Database configuration
+# Database configuration - reads from environment variables
 DB_CONFIG = {
     'host': os.getenv('DATABASE_HOST', 'your-rds-endpoint.rds.amazonaws.com'),
-    'database': os.getenv('DATABASE_NAME', 'postgres'),
+    'dbname': os.getenv('DATABASE_NAME', 'news_crawler'),
     'user': os.getenv('DATABASE_USER', 'crawler_user'),
     'password': os.getenv('DATABASE_PASSWORD', 'your_password'),
     'port': int(os.getenv('DATABASE_PORT', 5432))
 }
 
 def get_db_connection():
-    """Create database connection"""
-    return psycopg2.connect(**DB_CONFIG, cursor_factory=RealDictCursor)
+    """Create database connection with psycopg3"""
+    return psycopg.connect(**DB_CONFIG, row_factory=dict_row)
 
 @app.route('/')
 def index():
@@ -196,9 +193,15 @@ def api_stats():
     cursor.close()
     conn.close()
     
-    return jsonify({
-        'daily_counts': [dict(row) for row in daily_counts]
-    })
+    # Convert rows to dicts for JSON
+    result = []
+    for row in daily_counts:
+        result.append({
+            'date': row['date'].strftime('%Y-%m-%d') if row['date'] else None,
+            'count': row['count']
+        })
+    
+    return jsonify({'daily_counts': result})
 
 @app.route('/export')
 def export():
@@ -208,10 +211,6 @@ def export():
 @app.route('/api/export/csv')
 def export_csv():
     """Export articles as CSV"""
-    import csv
-    from io import StringIO
-    from flask import Response
-    
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -231,11 +230,15 @@ def export_csv():
     writer.writerow(['Title', 'Author', 'URL', 'Crawled At'])
     
     for article in articles_list:
+        crawled_at_str = ''
+        if article['crawled_at']:
+            crawled_at_str = article['crawled_at'].strftime('%Y-%m-%d %H:%M:%S')
+        
         writer.writerow([
-            article['title'],
-            article['author'],
-            article['url'],
-            article['crawled_at'].strftime('%Y-%m-%d %H:%M:%S')
+            article['title'] or '',
+            article['author'] or '',
+            article['url'] or '',
+            crawled_at_str
         ])
     
     output = si.getvalue()
@@ -246,4 +249,5 @@ def export_csv():
     )
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5003, debug=True)
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port, debug=False)
