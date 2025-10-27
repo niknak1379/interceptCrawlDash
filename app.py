@@ -10,7 +10,7 @@ import os
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-
+ 
 # Database configuration
 DB_CONFIG = {
     'host': os.getenv('DATABASE_HOST', 'your-rds-endpoint.rds.amazonaws.com'),
