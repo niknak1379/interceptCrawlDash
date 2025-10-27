@@ -1,0 +1,90 @@
+<!-- templates/index.html -->
+{% extends "base.html" %} {% block content %}
+<div class="stats-grid">
+	<div class="stat-card">
+		<h3>Total Articles</h3>
+		<div class="number">{{ "{:,}".format(total_articles) }}</div>
+	</div>
+	<div class="stat-card">
+		<h3>Total Authors</h3>
+		<div class="number">{{ total_authors }}</div>
+	</div>
+	<div class="stat-card">
+		<h3>Last 24 Hours</h3>
+		<div class="number">{{ recent_24h }}</div>
+	</div>
+	<div class="stat-card">
+		<h3>Crawl Period</h3>
+		<div class="number" style="font-size: 16px">
+			{% if first_crawl %} {{ first_crawl.strftime('%Y-%m-%d') }}<br />to<br />{{
+			last_crawl.strftime('%Y-%m-%d') }} {% else %} N/A {% endif %}
+		</div>
+	</div>
+</div>
+
+<div class="card">
+	<h2>🏆 Top 10 Authors</h2>
+	<table>
+		<thead>
+			<tr>
+				<th>Rank</th>
+				<th>Author</th>
+				<th>Articles</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for author in top_authors %}
+			<tr>
+				<td>{{ loop.index }}</td>
+				<td>{{ author.author }}</td>
+				<td>{{ author.article_count }}</td>
+				<td>
+					<a href="/author/{{ author.author }}" class="link">View Profile →</a>
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+<div class="card">
+	<h2>📝 Recent Articles</h2>
+	<table>
+		<thead>
+			<tr>
+				<th>Title</th>
+				<th>Author</th>
+				<th>Crawled</th>
+				<th>Link</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for article in recent_articles %}
+			<tr>
+				<td>
+					{{ article.title[:80] }}{% if article.title|length > 80 %}...{% endif
+					%}
+				</td>
+				<td>
+					{% if article.author %}
+					<a href="/author/{{ article.author }}" class="link"
+						>{{ article.author }}</a
+					>
+					{% else %}
+					<em>Unknown</em>
+					{% endif %}
+				</td>
+				<td>{{ article.crawled_at.strftime('%Y-%m-%d %H:%M') }}</td>
+				<td>
+					<a href="{{ article.url }}" target="_blank" class="link">View →</a>
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	<div style="text-align: center; margin-top: 20px">
+		<a href="/articles" class="btn">View All Articles</a>
+	</div>
+</div>
+{% endblock %}

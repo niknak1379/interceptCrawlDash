@@ -1,0 +1,29 @@
+<!-- templates/export.html -->
+{% extends "base.html" %} {% block content %}
+<div class="card">
+	<h2>📥 Export Data</h2>
+	<p>Download the crawled articles in various formats:</p>
+
+	<div style="margin-top: 30px">
+		<a href="/api/export/csv" class="btn btn-success" download
+			>⬇️ Download CSV</a
+		>
+		<p style="margin-top: 10px; color: #666">
+			Exports all articles with title, author, URL, and crawl date.
+		</p>
+	</div>
+
+	<div
+		style="
+			margin-top: 40px;
+			padding: 20px;
+			background: #f8f9fa;
+			border-radius: 8px;
+		"
+	>
+		<h3 style="margin-bottom: 15px">🔌 API Endpoints</h3>
+		<p><code>GET /api/stats</code> - Get daily article counts (JSON)</p>
+		<p><code>GET /api/export/csv</code> - Download CSV export</p>
+	</div>
+</div>
+{% endblock %}

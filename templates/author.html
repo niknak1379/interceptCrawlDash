@@ -1,0 +1,57 @@
+<!-- templates/author.html -->
+{% extends "base.html" %} {% block content %}
+<div class="card">
+	<h2>👤 {{ author_name }}</h2>
+
+	<div class="stats-grid">
+		<div class="stat-card">
+			<h3>Total Articles</h3>
+			<div class="number">{{ stats.article_count }}</div>
+		</div>
+		<div class="stat-card">
+			<h3>First Article</h3>
+			<div class="number" style="font-size: 18px">
+				{{ stats.first_article.strftime('%Y-%m-%d') if stats.first_article else
+				'N/A' }}
+			</div>
+		</div>
+		<div class="stat-card">
+			<h3>Latest Article</h3>
+			<div class="number" style="font-size: 18px">
+				{{ stats.latest_article.strftime('%Y-%m-%d') if stats.latest_article
+				else 'N/A' }}
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="card">
+	<h2>Articles by {{ author_name }}</h2>
+	<table>
+		<thead>
+			<tr>
+				<th style="width: 60%">Title</th>
+				<th>Crawled</th>
+				<th>Link</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for article in articles %}
+			<tr>
+				<td>{{ article.title }}</td>
+				<td>{{ article.crawled_at.strftime('%Y-%m-%d %H:%M') }}</td>
+				<td>
+					<a href="{{ article.url }}" target="_blank" class="link">View →</a>
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+<div style="text-align: center; margin-top: 20px">
+	<a href="/articles?author={{ author_name }}" class="btn"
+		>View in Articles List</a
+	>
+</div>
+{% endblock %}
