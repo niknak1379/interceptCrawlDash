@@ -224,7 +224,7 @@ def export_csv():
     cursor.close()
     conn.close()
     
-    # Create CSV
+    # Create CS V
     si = StringIO()
     writer = csv.writer(si)
     writer.writerow(['Title', 'Author', 'URL', 'Crawled At'])
